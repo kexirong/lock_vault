@@ -12,10 +12,11 @@ class SettingSecretPage extends StatelessWidget {
 
   static Route<void> route() {
     return MaterialPageRoute(
-      builder: (context) => BlocProvider(
-        create: (context) => SettingSecretCubit(),
-        child: const SettingSecretPage(),
-      ),
+      builder:
+          (context) => BlocProvider(
+            create: (context) => SettingSecretCubit(),
+            child: const SettingSecretPage(),
+          ),
     );
   }
 
@@ -48,15 +49,9 @@ class SettingSecretView extends StatelessWidget {
         return SingleChildScrollView(
           child: Column(
             children: [
-              ListTile(
-                textColor: colorScheme.primary,
-                title: Text(l10n.mainSecret),
-              ),
+              ListTile(textColor: colorScheme.primary, title: Text(l10n.mainSecret)),
               _SetMainSecret(),
-              ListTile(
-                textColor: colorScheme.primary,
-                title: Text(l10n.attSecrets),
-              ),
+              ListTile(textColor: colorScheme.primary, title: Text(l10n.attSecrets)),
               _AttSecrets(),
               Card.filled(
                 margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
@@ -66,9 +61,9 @@ class SettingSecretView extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: () async {
                       if (state.mainSecret == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(l10n.setMainSecret),
-                        ));
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(l10n.setMainSecret)));
                         return;
                       }
 
@@ -91,15 +86,15 @@ class SettingSecretView extends StatelessWidget {
                         await accountCubit.updateAccount(account);
                       }
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(l10n.reEncryptComplete),
-                        ));
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(l10n.reEncryptComplete)));
                       }
                     },
                     child: Text(l10n.reEncrypt),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         );
@@ -247,25 +242,26 @@ class _AttSecrets extends StatelessWidget {
                         onTap: () {
                           showDialog<void>(
                             context: context,
-                            builder: (BuildContext context) => AlertDialog(
-                              title: Text(l10n.confirm),
-                              content: Text(l10n.confirmContent),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text(l10n.cancel),
+                            builder:
+                                (BuildContext context) => AlertDialog(
+                                  title: Text(l10n.confirm),
+                                  content: Text(l10n.confirmContent),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: Text(l10n.cancel),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        context.read<SettingCubit>().deleteSecret(
+                                          attSecrets[index].secret,
+                                        );
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text(l10n.ok),
+                                    ),
+                                  ],
                                 ),
-                                TextButton(
-                                  onPressed: () {
-                                    context
-                                        .read<SettingCubit>()
-                                        .deleteSecret(attSecrets[index].secret);
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(l10n.ok),
-                                ),
-                              ],
-                            ),
                           );
                         },
                         child: Icon(Icons.remove_circle_outline, color: colorScheme.error),
@@ -281,37 +277,40 @@ class _AttSecrets extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
               TextButton(
-                child:   Text(l10n.add),
+                child: Text(l10n.add),
                 onPressed: () {
                   var inputSecret = '';
                   showDialog<bool>(
                     context: context,
-                    builder: (BuildContext context) => AlertDialog.adaptive(
-                      title:   Text( l10n.addAttSecret),
-                      content: TextField(onChanged: (value) {
-                        inputSecret = value;
-                      }),
-                      actions: <Widget>[
-                        TextButton(
-                          child:   Text(l10n.ok),
-                          onPressed: () => Navigator.pop(context, false),
+                    builder:
+                        (BuildContext context) => AlertDialog.adaptive(
+                          title: Text(l10n.addAttSecret),
+                          content: TextField(
+                            onChanged: (value) {
+                              inputSecret = value;
+                            },
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: Text(l10n.cancel),
+                              onPressed: () => Navigator.pop(context, false),
+                            ),
+                            TextButton(
+                              child: Text(l10n.ok),
+                              onPressed: () {
+                                if (inputSecret.trim().isEmpty) {
+                                  ScaffoldMessenger.of(
+                                    context,
+                                  ).showSnackBar(SnackBar(content: Text(l10n.secretNotSecret)));
+                                  return;
+                                }
+                                context.read<SettingCubit>().addSecret(inputSecret.trim());
+                                Navigator.pop(context, true);
+                                //
+                              },
+                            ),
+                          ],
                         ),
-                        TextButton(
-                          child:   Text(l10n.cancel),
-                          onPressed: () {
-                            if (inputSecret.trim().isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text(l10n.secretNotSecret),
-                              ));
-                              return;
-                            }
-                            context.read<SettingCubit>().addSecret(inputSecret.trim());
-                            Navigator.pop(context, true);
-                            //
-                          },
-                        ),
-                      ],
-                    ),
                   );
                 },
               ),

@@ -45,16 +45,18 @@ class AppView extends StatelessWidget {
           create: (context) => AccountCubit(accountRepository: context.read<AccountRepository>()),
         ),
         BlocProvider<SyncWebdavCubit>(
-          create: (context) => SyncWebdavCubit(
-            accountRepository: context.read<AccountRepository>(),
-            settingRepository: context.read<SettingRepository>(),
-            changeRecordRepository: context.read<ChangeRecordRepository>(),
-          ),
+          create:
+              (context) => SyncWebdavCubit(
+                accountRepository: context.read<AccountRepository>(),
+                settingRepository: context.read<SettingRepository>(),
+                changeRecordRepository: context.read<ChangeRecordRepository>(),
+              ),
         ),
       ],
       child: BlocListener<AccountCubit, AccountState>(
-        listenWhen: (previous, current) =>
-            previous.status != AccountStatus.loading && current.status == AccountStatus.success,
+        listenWhen:
+            (previous, current) =>
+                previous.status == AccountStatus.loading && current.status == AccountStatus.success,
         listener: (context, state) => context.read<SyncWebdavCubit>().sync(),
         child: MaterialApp(
           theme: ThemeData(colorSchemeSeed: Color.fromRGBO(76, 92, 146, 1)),
